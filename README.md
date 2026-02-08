@@ -1,3 +1,5 @@
+**English** | [中文](README_zh.md) | [日本語](README_ja.md)
+
 # TraceBoard
 
 **Local-first AI Agent observability & debugging toolkit.**
