@@ -18,7 +18,7 @@ import click
 
 
 @click.group()
-@click.version_option(version="0.1.0", prog_name="traceboard")
+@click.version_option(version="0.1.1", prog_name="traceboard")
 def main():
     """TraceBoard — Local-first AI Agent observability & debugging toolkit."""
     pass
@@ -38,7 +38,7 @@ def ui(port: int, host: str, db: str, no_open: bool):
     app = create_app(db_path=db_path)
 
     click.echo(f"")
-    click.echo(f"  TraceBoard v0.1.0")
+    click.echo(f"  TraceBoard v0.1.1")
     click.echo(f"  Dashboard: http://{host}:{port}")
     click.echo(f"  Database:  {db_path}")
     click.echo(f"")

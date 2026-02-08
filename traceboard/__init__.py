@@ -10,7 +10,7 @@ from traceboard.config import TraceboardConfig
 from traceboard.sdk.exporter import TraceExporter
 from traceboard.sdk.processor import TraceBoardProcessor
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 __all__ = ["init", "get_processor", "TraceboardConfig", "TraceExporter"]
 
 _processor: TraceBoardProcessor | None = None
