@@ -116,21 +116,18 @@ print(f"エクスポート済み: {data['trace_count']} トレース")
 
 ## 対応モデル（コスト追跡）
 
-TraceBoard は [OpenAI 公式価格](https://platform.openai.com/docs/pricing)に基づき、**80 以上のモデルバリアント**のコストを自動計算します：
+TraceBoard は **6 プロバイダー、100 以上のモデルバリアント**のコスト追跡に対応しています：
 
-| モデルファミリー | モデル |
+| プロバイダー | モデル |
 |---|---|
-| GPT-5.2 | `gpt-5.2`、`gpt-5.2-pro`、`gpt-5.2-codex` |
-| GPT-5.1 | `gpt-5.1`、`gpt-5.1-codex`、`gpt-5.1-codex-max`、`gpt-5.1-codex-mini` |
-| GPT-5 | `gpt-5`、`gpt-5-pro`、`gpt-5-mini`、`gpt-5-nano` |
-| GPT-4.1 | `gpt-4.1`、`gpt-4.1-mini`、`gpt-4.1-nano` |
-| GPT-4o | `gpt-4o`、`gpt-4o-mini` |
-| o シリーズ | `o1`、`o1-pro`、`o1-mini`、`o3`、`o3-pro`、`o3-mini`、`o4-mini` |
-| リアルタイム | `gpt-realtime`、`gpt-realtime-mini` |
-| Codex | `codex-mini-latest` |
-| レガシー | `gpt-4-turbo`、`gpt-4`、`gpt-3.5-turbo` |
+| **OpenAI** | `gpt-5.2`、`gpt-5.1`、`gpt-5`、`gpt-5-mini`、`gpt-5-nano`、`gpt-4.1`、`gpt-4o`、`o1`、`o3`、`o4-mini` など |
+| **Anthropic** | `claude-opus-4.5`、`claude-sonnet-4.5`、`claude-haiku-4.5`、`claude-opus-4`、`claude-sonnet-4`、`claude-3.5-sonnet`、`claude-3-opus` |
+| **Google** | `gemini-3-pro-preview`、`gemini-3-flash-preview`、`gemini-2.5-pro`、`gemini-2.5-flash`、`gemini-2.0-flash` |
+| **DeepSeek** | `deepseek-chat`、`deepseek-reasoner` |
+| **Meta** | `llama-4-maverick`、`llama-4-scout`、`llama-3.3-70b`、`llama-3.1-405b` |
+| **Mistral** | `mistral-large-latest`、`mistral-medium-latest`、`mistral-small-latest`、`codestral-latest` |
 
-不明なモデルはデフォルト価格（$2.00/$8.00 per 1M トークン）にフォールバックします。価格データは OpenAI 公式価格ページに基づき、各リリースで更新されます。
+不明なモデルはデフォルト価格（$2.00/$8.00 per 1M トークン）にフォールバックします。価格データは各プロバイダーの公式価格ページに基づき、各リリースで更新されます。
 
 ## 開発
 

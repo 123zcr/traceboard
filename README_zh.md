@@ -116,21 +116,18 @@ print(f"已导出 {data['trace_count']} 条追踪")
 
 ## 支持的模型（费用追踪）
 
-TraceBoard 基于 [OpenAI 官方定价](https://platform.openai.com/docs/pricing)，自动计算 **80+ 种模型变体**的费用：
+TraceBoard 支持 **6 大厂商、100+ 种模型变体**的费用追踪：
 
-| 模型系列 | 模型 |
+| 厂商 | 模型 |
 |---|---|
-| GPT-5.2 | `gpt-5.2`、`gpt-5.2-pro`、`gpt-5.2-codex` |
-| GPT-5.1 | `gpt-5.1`、`gpt-5.1-codex`、`gpt-5.1-codex-max`、`gpt-5.1-codex-mini` |
-| GPT-5 | `gpt-5`、`gpt-5-pro`、`gpt-5-mini`、`gpt-5-nano` |
-| GPT-4.1 | `gpt-4.1`、`gpt-4.1-mini`、`gpt-4.1-nano` |
-| GPT-4o | `gpt-4o`、`gpt-4o-mini` |
-| o 系列 | `o1`、`o1-pro`、`o1-mini`、`o3`、`o3-pro`、`o3-mini`、`o4-mini` |
-| 实时模型 | `gpt-realtime`、`gpt-realtime-mini` |
-| Codex | `codex-mini-latest` |
-| 旧版 | `gpt-4-turbo`、`gpt-4`、`gpt-3.5-turbo` |
+| **OpenAI** | `gpt-5.2`、`gpt-5.1`、`gpt-5`、`gpt-5-mini`、`gpt-5-nano`、`gpt-4.1`、`gpt-4o`、`o1`、`o3`、`o4-mini` 等 |
+| **Anthropic** | `claude-opus-4.5`、`claude-sonnet-4.5`、`claude-haiku-4.5`、`claude-opus-4`、`claude-sonnet-4`、`claude-3.5-sonnet`、`claude-3-opus` |
+| **Google** | `gemini-3-pro-preview`、`gemini-3-flash-preview`、`gemini-2.5-pro`、`gemini-2.5-flash`、`gemini-2.0-flash` |
+| **DeepSeek** | `deepseek-chat`、`deepseek-reasoner` |
+| **Meta** | `llama-4-maverick`、`llama-4-scout`、`llama-3.3-70b`、`llama-3.1-405b` |
+| **Mistral** | `mistral-large-latest`、`mistral-medium-latest`、`mistral-small-latest`、`codestral-latest` |
 
-未知模型默认使用 $2.00/$8.00 每百万 Token 的定价。定价数据来源于 OpenAI 官方定价页面，随每个版本更新。
+未知模型默认使用 $2.00/$8.00 每百万 Token 的定价。定价数据来源于各厂商官方定价页面，随每个版本更新。
 
 ## 开发
 

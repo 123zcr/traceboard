@@ -116,21 +116,18 @@ print(f"Exported {data['trace_count']} traces")
 
 ## Supported Models (Cost Tracking)
 
-TraceBoard automatically calculates costs for **80+ model variants** based on [OpenAI's official pricing](https://platform.openai.com/docs/pricing):
+TraceBoard supports cost tracking for **6 providers, 100+ model variants**:
 
-| Model Family | Models |
+| Provider | Models |
 |---|---|
-| GPT-5.2 | `gpt-5.2`, `gpt-5.2-pro`, `gpt-5.2-codex` |
-| GPT-5.1 | `gpt-5.1`, `gpt-5.1-codex`, `gpt-5.1-codex-max`, `gpt-5.1-codex-mini` |
-| GPT-5 | `gpt-5`, `gpt-5-pro`, `gpt-5-mini`, `gpt-5-nano` |
-| GPT-4.1 | `gpt-4.1`, `gpt-4.1-mini`, `gpt-4.1-nano` |
-| GPT-4o | `gpt-4o`, `gpt-4o-mini` |
-| o-series | `o1`, `o1-pro`, `o1-mini`, `o3`, `o3-pro`, `o3-mini`, `o4-mini` |
-| Realtime | `gpt-realtime`, `gpt-realtime-mini` |
-| Codex | `codex-mini-latest` |
-| Legacy | `gpt-4-turbo`, `gpt-4`, `gpt-3.5-turbo` |
+| **OpenAI** | `gpt-5.2`, `gpt-5.1`, `gpt-5`, `gpt-5-mini`, `gpt-5-nano`, `gpt-4.1`, `gpt-4o`, `o1`, `o3`, `o4-mini`, and more |
+| **Anthropic** | `claude-opus-4.5`, `claude-sonnet-4.5`, `claude-haiku-4.5`, `claude-opus-4`, `claude-sonnet-4`, `claude-3.5-sonnet`, `claude-3-opus` |
+| **Google** | `gemini-3-pro-preview`, `gemini-3-flash-preview`, `gemini-2.5-pro`, `gemini-2.5-flash`, `gemini-2.0-flash` |
+| **DeepSeek** | `deepseek-chat`, `deepseek-reasoner` |
+| **Meta** | `llama-4-maverick`, `llama-4-scout`, `llama-3.3-70b`, `llama-3.1-405b` |
+| **Mistral** | `mistral-large-latest`, `mistral-medium-latest`, `mistral-small-latest`, `codestral-latest` |
 
-Unknown models fall back to default pricing ($2.00/$8.00 per 1M tokens). Pricing data is sourced from OpenAI's official pricing page and updated with each release.
+Unknown models fall back to default pricing ($2.00/$8.00 per 1M tokens). Pricing data is sourced from each provider's official pricing page and updated with each release.
 
 ## Architecture
 
