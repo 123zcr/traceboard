@@ -18,7 +18,7 @@ import click
 
 
 @click.group()
-@click.version_option(version="0.1.1", prog_name="traceboard")
+@click.version_option(version="0.2.0", prog_name="traceboard")
 def main():
     """TraceBoard — Local-first AI Agent observability & debugging toolkit."""
     pass

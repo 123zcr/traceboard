@@ -10,11 +10,11 @@ TraceBoard 是 Agent 追踪领域的 *SQLite* —— 零配置、完全本地、
 
 ## 特性
 
-- **零配置** —— `pip install traceboard` + 2 行代码
+- **多框架支持** —— 支持 OpenAI Agents SDK、Anthropic、LangChain、LiteLLM
+- **零配置** —— `pip install traceboard[all]` + 2 行代码
 - **本地优先** —— 所有数据存储在本地 SQLite 文件中，零隐私风险
 - **内置 Web 仪表盘** —— `traceboard ui` 打开交互式追踪查看器
-- **OpenAI Agents SDK** —— 通过 `TracingProcessor` 接口原生集成
-- **成本追踪** —— 自动按模型计算费用（GPT-4o、o1、o3、GPT-4.1 等）
+- **成本追踪** —— 自动按模型计算费用，覆盖 6 大厂商、100+ 模型
 - **实时更新** —— WebSocket 驱动的实时视图，支持 HTTP 轮询回退
 - **数据导出** —— 支持导出为 JSON 或 CSV 格式进行离线分析
 - **离线可用** —— 无需任何网络连接
@@ -24,21 +24,64 @@ TraceBoard 是 Agent 追踪领域的 *SQLite* —— 零配置、完全本地、
 ### 安装
 
 ```bash
-pip install traceboard
+pip install traceboard[all]       # 所有 SDK 适配器
+pip install traceboard[openai]    # 仅 OpenAI Agents SDK
+pip install traceboard[anthropic] # 仅 Anthropic
+pip install traceboard[langchain] # 仅 LangChain
+pip install traceboard[litellm]   # 仅 LiteLLM（支持 100+ 厂商）
 ```
 
-### 集成（仅需 2 行代码）
+### OpenAI Agents SDK
 
 ```python
 import traceboard
 traceboard.init()
 
-# 你现有的 OpenAI Agents SDK 代码 —— 无需任何修改
 from agents import Agent, Runner
-
 agent = Agent(name="Assistant", instructions="你是一个有用的助手。")
 result = Runner.run_sync(agent, "你好！")
-print(result.final_output)
+```
+
+### Anthropic Claude
+
+```python
+import traceboard
+tracer = traceboard.init_anthropic()
+client = tracer.instrument()
+
+response = client.messages.create(
+    model="claude-opus-4.6",
+    max_tokens=1024,
+    messages=[{"role": "user", "content": "你好！"}]
+)
+```
+
+### LangChain
+
+```python
+import traceboard
+handler = traceboard.init_langchain()
+
+from langchain_openai import ChatOpenAI
+llm = ChatOpenAI(model="gpt-5", callbacks=[handler])
+response = llm.invoke("你好！")
+```
+
+### LiteLLM（一次支持 100+ 厂商）
+
+```python
+import traceboard
+traceboard.init()  # 自动检测 LiteLLM
+
+from litellm import completion
+response = completion(model="gpt-5", messages=[{"role": "user", "content": "你好！"}])
+```
+
+### 自动检测所有已安装的 SDK
+
+```python
+import traceboard
+traceboard.init()  # 自动检测并注册所有已安装的 SDK
 ```
 
 ### 查看追踪数据
@@ -157,7 +200,7 @@ traceboard ui --no-open
 ## 环境要求
 
 - Python >= 3.10
-- OpenAI Agents SDK（`openai-agents`）
+- 至少安装一个支持的 SDK：`openai-agents`、`anthropic`、`langchain-core` 或 `litellm`
 
 ## 许可证
 

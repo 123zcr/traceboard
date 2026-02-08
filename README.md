@@ -10,11 +10,11 @@ TraceBoard is the *SQLite of Agent tracing* — zero config, fully local, instan
 
 ## Features
 
-- **Zero Config** — `pip install traceboard` + 2 lines of code
+- **Multi-SDK** — Supports OpenAI Agents SDK, Anthropic, LangChain, and LiteLLM
+- **Zero Config** — `pip install traceboard[all]` + 2 lines of code
 - **Local First** — All data stored in a local SQLite file, zero privacy risk
 - **Built-in Web Dashboard** — `traceboard ui` opens an interactive trace viewer
-- **OpenAI Agents SDK** — Native integration via `TracingProcessor` interface
-- **Cost Tracking** — Automatic per-model cost calculation (GPT-4o, o1, o3, GPT-4.1, etc.)
+- **Cost Tracking** — Automatic per-model cost calculation for 6 providers, 100+ models
 - **Live Updates** — WebSocket-powered real-time view with HTTP polling fallback
 - **Data Export** — Export traces to JSON or CSV for offline analysis
 - **Offline** — Works without any internet connection
@@ -24,21 +24,69 @@ TraceBoard is the *SQLite of Agent tracing* — zero config, fully local, instan
 ### Install
 
 ```bash
-pip install traceboard
+pip install traceboard[all]    # All SDK adapters
+pip install traceboard[openai] # OpenAI Agents SDK only
+pip install traceboard[anthropic] # Anthropic only
+pip install traceboard[langchain] # LangChain only
+pip install traceboard[litellm]   # LiteLLM only (supports 100+ providers)
 ```
 
-### Integrate (2 lines)
+### OpenAI Agents SDK
 
 ```python
 import traceboard
 traceboard.init()
 
-# Your existing OpenAI Agents SDK code — no changes needed
 from agents import Agent, Runner
 
 agent = Agent(name="Assistant", instructions="You are a helpful assistant.")
 result = Runner.run_sync(agent, "Hello!")
 print(result.final_output)
+```
+
+### Anthropic Claude
+
+```python
+import traceboard
+tracer = traceboard.init_anthropic()
+client = tracer.instrument()  # Returns an instrumented Anthropic client
+
+response = client.messages.create(
+    model="claude-opus-4.6",
+    max_tokens=1024,
+    messages=[{"role": "user", "content": "Hello!"}]
+)
+```
+
+### LangChain
+
+```python
+import traceboard
+handler = traceboard.init_langchain()
+
+from langchain_openai import ChatOpenAI
+
+llm = ChatOpenAI(model="gpt-5", callbacks=[handler])
+response = llm.invoke("Hello!")
+```
+
+### LiteLLM (100+ providers in one)
+
+```python
+import traceboard
+traceboard.init()  # Auto-detects LiteLLM
+
+from litellm import completion
+
+# Works with any provider — OpenAI, Anthropic, Gemini, DeepSeek, etc.
+response = completion(model="gpt-5", messages=[{"role": "user", "content": "Hello!"}])
+```
+
+### Auto-detect all installed SDKs
+
+```python
+import traceboard
+traceboard.init()  # Automatically instruments every SDK it finds
 ```
 
 ### View Traces
@@ -133,26 +181,30 @@ Unknown models fall back to default pricing ($2.00/$8.00 per 1M tokens). Pricing
 
 ```
 traceboard/
-├── __init__.py          # Public API: init(), get_processor()
-├── cli.py               # CLI commands (ui, clean, export)
-├── config.py            # Configuration dataclass
-├── cost.py              # Model pricing & cost calculation
+├── __init__.py              # Public API: init(), init_anthropic(), init_langchain(), etc.
+├── cli.py                   # CLI commands (ui, clean, export)
+├── config.py                # Configuration dataclass
+├── cost.py                  # Model pricing & cost calculation (6 providers)
 ├── sdk/
-│   ├── processor.py     # TracingProcessor implementation
-│   └── exporter.py      # JSON & CSV export utilities
+│   ├── _base.py             # BaseTracer — shared trace/span write logic
+│   ├── processor.py         # OpenAI Agents SDK adapter
+│   ├── anthropic_tracer.py  # Anthropic SDK adapter (httpx hooks)
+│   ├── langchain_handler.py # LangChain adapter (BaseCallbackHandler)
+│   ├── litellm_logger.py    # LiteLLM adapter (CustomLogger)
+│   └── exporter.py          # JSON & CSV export utilities
 ├── server/
-│   ├── app.py           # FastAPI application factory
-│   ├── database.py      # Async + sync SQLite wrappers
-│   ├── models.py        # Pydantic data models
+│   ├── app.py               # FastAPI application factory
+│   ├── database.py          # Async + sync SQLite wrappers
+│   ├── models.py            # Pydantic data models
 │   └── routes/
-│       ├── traces.py    # Trace CRUD endpoints
-│       ├── spans.py     # Span query endpoints
-│       └── metrics.py   # Metrics + WebSocket live updates
+│       ├── traces.py        # Trace CRUD endpoints
+│       ├── spans.py         # Span query endpoints
+│       └── metrics.py       # Metrics + WebSocket live updates
 └── dashboard/
-    ├── index.html       # Single-page dashboard (Alpine.js + Tailwind)
+    ├── index.html           # Single-page dashboard (Alpine.js + Tailwind)
     └── static/
-        ├── app.js       # Dashboard application logic
-        └── styles.css   # Custom styles
+        ├── app.js           # Dashboard application logic
+        └── styles.css       # Custom styles
 ```
 
 ## REST API
@@ -199,7 +251,7 @@ Contributions are welcome! Please:
 ## Requirements
 
 - Python >= 3.10
-- OpenAI Agents SDK (`openai-agents`)
+- At least one supported SDK: `openai-agents`, `anthropic`, `langchain-core`, or `litellm`
 
 ## License
 

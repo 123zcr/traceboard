@@ -10,11 +10,11 @@ TraceBoard は Agent トレーシングにおける *SQLite* です —— 設�
 
 ## 特徴
 
-- **設定不要** —— `pip install traceboard` + コード 2 行
+- **マルチ SDK** —— OpenAI Agents SDK、Anthropic、LangChain、LiteLLM をサポート
+- **設定不要** —— `pip install traceboard[all]` + コード 2 行
 - **ローカルファースト** —— 全データをローカルの SQLite ファイルに保存、プライバシーリスクゼロ
 - **内蔵 Web ダッシュボード** —— `traceboard ui` でインタラクティブなトレースビューアを起動
-- **OpenAI Agents SDK** —— `TracingProcessor` インターフェースによるネイティブ統合
-- **コスト追跡** —— モデル別の自動コスト計算（GPT-4o、o1、o3、GPT-4.1 など）
+- **コスト追跡** —— 6 プロバイダー、100 以上のモデルの自動コスト計算
 - **リアルタイム更新** —— WebSocket によるライブビュー（HTTP ポーリングフォールバック付き）
 - **データエクスポート** —— JSON または CSV 形式でオフライン分析用にエクスポート
 - **オフライン動作** —— インターネット接続不要
@@ -24,21 +24,64 @@ TraceBoard は Agent トレーシングにおける *SQLite* です —— 設�
 ### インストール
 
 ```bash
-pip install traceboard
+pip install traceboard[all]       # 全 SDK アダプター
+pip install traceboard[openai]    # OpenAI Agents SDK のみ
+pip install traceboard[anthropic] # Anthropic のみ
+pip install traceboard[langchain] # LangChain のみ
+pip install traceboard[litellm]   # LiteLLM のみ（100+ プロバイダー対応）
 ```
 
-### 統合（たった 2 行）
+### OpenAI Agents SDK
 
 ```python
 import traceboard
 traceboard.init()
 
-# 既存の OpenAI Agents SDK コード —— 変更不要
 from agents import Agent, Runner
-
 agent = Agent(name="Assistant", instructions="あなたは親切なアシスタントです。")
 result = Runner.run_sync(agent, "こんにちは！")
-print(result.final_output)
+```
+
+### Anthropic Claude
+
+```python
+import traceboard
+tracer = traceboard.init_anthropic()
+client = tracer.instrument()
+
+response = client.messages.create(
+    model="claude-opus-4.6",
+    max_tokens=1024,
+    messages=[{"role": "user", "content": "こんにちは！"}]
+)
+```
+
+### LangChain
+
+```python
+import traceboard
+handler = traceboard.init_langchain()
+
+from langchain_openai import ChatOpenAI
+llm = ChatOpenAI(model="gpt-5", callbacks=[handler])
+response = llm.invoke("こんにちは！")
+```
+
+### LiteLLM（100+ プロバイダーを一括対応）
+
+```python
+import traceboard
+traceboard.init()  # LiteLLM を自動検出
+
+from litellm import completion
+response = completion(model="gpt-5", messages=[{"role": "user", "content": "こんにちは！"}])
+```
+
+### 全インストール済み SDK の自動検出
+
+```python
+import traceboard
+traceboard.init()  # インストール済みの全 SDK を自動検出・登録
 ```
 
 ### トレースを表示
@@ -157,7 +200,7 @@ traceboard ui --no-open
 ## 必要環境
 
 - Python >= 3.10
-- OpenAI Agents SDK（`openai-agents`）
+- サポート対象 SDK のいずれか: `openai-agents`、`anthropic`、`langchain-core`、`litellm`
 
 ## ライセンス
 
