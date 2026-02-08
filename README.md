@@ -116,18 +116,21 @@ print(f"Exported {data['trace_count']} traces")
 
 ## Supported Models (Cost Tracking)
 
-TraceBoard automatically calculates costs for the following models:
+TraceBoard automatically calculates costs for **80+ model variants** based on [OpenAI's official pricing](https://platform.openai.com/docs/pricing):
 
 | Model Family | Models |
 |---|---|
-| GPT-4o | `gpt-4o`, `gpt-4o-mini` |
+| GPT-5.2 | `gpt-5.2`, `gpt-5.2-pro`, `gpt-5.2-codex` |
+| GPT-5.1 | `gpt-5.1`, `gpt-5.1-codex`, `gpt-5.1-codex-max`, `gpt-5.1-codex-mini` |
+| GPT-5 | `gpt-5`, `gpt-5-pro`, `gpt-5-mini`, `gpt-5-nano` |
 | GPT-4.1 | `gpt-4.1`, `gpt-4.1-mini`, `gpt-4.1-nano` |
-| o-series | `o1`, `o1-mini`, `o3`, `o3-mini`, `o4-mini` |
-| GPT-4 Turbo | `gpt-4-turbo` |
-| GPT-4 | `gpt-4` |
-| GPT-3.5 | `gpt-3.5-turbo` |
+| GPT-4o | `gpt-4o`, `gpt-4o-mini` |
+| o-series | `o1`, `o1-pro`, `o1-mini`, `o3`, `o3-pro`, `o3-mini`, `o4-mini` |
+| Realtime | `gpt-realtime`, `gpt-realtime-mini` |
+| Codex | `codex-mini-latest` |
+| Legacy | `gpt-4-turbo`, `gpt-4`, `gpt-3.5-turbo` |
 
-Unknown models fall back to GPT-4o pricing. Pricing data is bundled and updated with each release.
+Unknown models fall back to default pricing ($2.00/$8.00 per 1M tokens). Pricing data is sourced from OpenAI's official pricing page and updated with each release.
 
 ## Architecture
 

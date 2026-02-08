@@ -116,18 +116,21 @@ print(f"エクスポート済み: {data['trace_count']} トレース")
 
 ## 対応モデル（コスト追跡）
 
-TraceBoard は以下のモデルのコストを自動計算します：
+TraceBoard は [OpenAI 公式価格](https://platform.openai.com/docs/pricing)に基づき、**80 以上のモデルバリアント**のコストを自動計算します：
 
 | モデルファミリー | モデル |
 |---|---|
-| GPT-4o | `gpt-4o`、`gpt-4o-mini` |
+| GPT-5.2 | `gpt-5.2`、`gpt-5.2-pro`、`gpt-5.2-codex` |
+| GPT-5.1 | `gpt-5.1`、`gpt-5.1-codex`、`gpt-5.1-codex-max`、`gpt-5.1-codex-mini` |
+| GPT-5 | `gpt-5`、`gpt-5-pro`、`gpt-5-mini`、`gpt-5-nano` |
 | GPT-4.1 | `gpt-4.1`、`gpt-4.1-mini`、`gpt-4.1-nano` |
-| o シリーズ | `o1`、`o1-mini`、`o3`、`o3-mini`、`o4-mini` |
-| GPT-4 Turbo | `gpt-4-turbo` |
-| GPT-4 | `gpt-4` |
-| GPT-3.5 | `gpt-3.5-turbo` |
+| GPT-4o | `gpt-4o`、`gpt-4o-mini` |
+| o シリーズ | `o1`、`o1-pro`、`o1-mini`、`o3`、`o3-pro`、`o3-mini`、`o4-mini` |
+| リアルタイム | `gpt-realtime`、`gpt-realtime-mini` |
+| Codex | `codex-mini-latest` |
+| レガシー | `gpt-4-turbo`、`gpt-4`、`gpt-3.5-turbo` |
 
-不明なモデルは GPT-4o の価格にフォールバックします。価格データは各リリースにバンドルされ更新されます。
+不明なモデルはデフォルト価格（$2.00/$8.00 per 1M トークン）にフォールバックします。価格データは OpenAI 公式価格ページに基づき、各リリースで更新されます。
 
 ## 開発
 

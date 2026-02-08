@@ -116,18 +116,21 @@ print(f"已导出 {data['trace_count']} 条追踪")
 
 ## 支持的模型（费用追踪）
 
-TraceBoard 自动计算以下模型的费用：
+TraceBoard 基于 [OpenAI 官方定价](https://platform.openai.com/docs/pricing)，自动计算 **80+ 种模型变体**的费用：
 
 | 模型系列 | 模型 |
 |---|---|
-| GPT-4o | `gpt-4o`、`gpt-4o-mini` |
+| GPT-5.2 | `gpt-5.2`、`gpt-5.2-pro`、`gpt-5.2-codex` |
+| GPT-5.1 | `gpt-5.1`、`gpt-5.1-codex`、`gpt-5.1-codex-max`、`gpt-5.1-codex-mini` |
+| GPT-5 | `gpt-5`、`gpt-5-pro`、`gpt-5-mini`、`gpt-5-nano` |
 | GPT-4.1 | `gpt-4.1`、`gpt-4.1-mini`、`gpt-4.1-nano` |
-| o 系列 | `o1`、`o1-mini`、`o3`、`o3-mini`、`o4-mini` |
-| GPT-4 Turbo | `gpt-4-turbo` |
-| GPT-4 | `gpt-4` |
-| GPT-3.5 | `gpt-3.5-turbo` |
+| GPT-4o | `gpt-4o`、`gpt-4o-mini` |
+| o 系列 | `o1`、`o1-pro`、`o1-mini`、`o3`、`o3-pro`、`o3-mini`、`o4-mini` |
+| 实时模型 | `gpt-realtime`、`gpt-realtime-mini` |
+| Codex | `codex-mini-latest` |
+| 旧版 | `gpt-4-turbo`、`gpt-4`、`gpt-3.5-turbo` |
 
-未知模型默认使用 GPT-4o 的定价。定价数据随每个版本发布更新。
+未知模型默认使用 $2.00/$8.00 每百万 Token 的定价。定价数据来源于 OpenAI 官方定价页面，随每个版本更新。
 
 ## 开发
 
