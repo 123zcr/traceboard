@@ -1,0 +1,56 @@
+/* TraceBoard custom styles */
+
+/* Hide elements with x-cloak until Alpine.js is loaded */
+[x-cloak] {
+    display: none !important;
+}
+
+/* Smooth scrollbar styling */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #374151;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #4b5563;
+}
+
+/* Code/pre block styling */
+pre {
+    tab-size: 2;
+}
+
+/* Table hover effect */
+table tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+/* Timeline bar transitions */
+.timeline-bar {
+    transition: width 0.3s ease, left 0.3s ease;
+}
+
+/* Pulse animation for running status */
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.animate-pulse-dot {
+    animation: pulse-dot 2s ease-in-out infinite;
+}
+
+/* Font smoothing */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TraceBoard — AI Agent Observability</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff', 100: '#e0e7ff', 200: '#c7d2fe',
+                            500: '#6366f1', 600: '#4f46e5', 700: '#4338ca',
+                            800: '#3730a3', 900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen" x-data="app()" x-init="init()">
+
+    <!-- Top Navigation -->
+    <nav class="bg-gray-900 border-b border-gray-800 px-6 py-3 flex items-center justify-between sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center font-bold text-sm">TB</div>
+            <h1 class="text-lg font-semibold text-white">TraceBoard</h1>
+            <span class="text-xs text-gray-500 bg-gray-800 px-2 py-0.5 rounded">v0.1.0</span>
+        </div>
+        <div class="flex items-center gap-4">
+            <button @click="currentView = 'metrics'"
+                    :class="currentView === 'metrics' ? 'text-brand-400' : 'text-gray-400 hover:text-gray-200'"
+                    class="text-sm font-medium transition">Metrics</button>
+            <button @click="currentView = 'traces'; loadTraces()"
+                    :class="currentView === 'traces' || currentView === 'detail' ? 'text-brand-400' : 'text-gray-400 hover:text-gray-200'"
+                    class="text-sm font-medium transition">Traces</button>
+            <div class="w-px h-5 bg-gray-700"></div>
+            <div class="flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full"
+                      :class="wsConnected ? 'bg-green-500' : 'bg-yellow-500'"
+                      :title="wsConnected ? 'WebSocket connected' : 'Using HTTP polling'"></span>
+                <button @click="autoRefresh = !autoRefresh"
+                        :class="autoRefresh ? 'text-green-400' : 'text-gray-500'"
+                        class="text-xs font-mono transition"
+                        :title="autoRefresh ? (wsConnected ? 'Live via WebSocket' : 'Live via HTTP polling') : 'Auto-refresh paused'">
+                    <span x-text="autoRefresh ? (wsConnected ? 'LIVE' : 'POLL') : 'PAUSED'"></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-6 py-6">
+
+        <!-- ═══ METRICS VIEW ═══ -->
+        <div x-show="currentView === 'metrics'" x-cloak>
+            <h2 class="text-xl font-semibold mb-5">Dashboard</h2>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
+                    <p class="text-xs text-gray-500 uppercase tracking-wide">Total Traces</p>
+                    <p class="text-2xl font-bold mt-1" x-text="metrics.total_traces">0</p>
+                </div>
+                <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
+                    <p class="text-xs text-gray-500 uppercase tracking-wide">Total Tokens</p>
+                    <p class="text-2xl font-bold mt-1" x-text="formatNumber(metrics.total_tokens)">0</p>
+                </div>
+                <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
+                    <p class="text-xs text-gray-500 uppercase tracking-wide">Total Cost</p>
+                    <p class="text-2xl font-bold mt-1 text-green-400" x-text="'$' + metrics.total_cost.toFixed(4)">$0</p>
+                </div>
+                <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
+                    <p class="text-xs text-gray-500 uppercase tracking-wide">Avg Duration</p>
+                    <p class="text-2xl font-bold mt-1" x-text="formatDuration(metrics.avg_duration_ms)">-</p>
+                </div>
+            </div>
+
+            <!-- Status & Cost Breakdown -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
+                    <h3 class="text-sm font-medium text-gray-400 mb-4">Traces by Status</h3>
+                    <template x-for="(count, status) in metrics.traces_by_status" :key="status">
+                        <div class="flex items-center justify-between py-2 border-b border-gray-800 last:border-0">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full"
+                                      :class="status === 'completed' ? 'bg-green-500' : status === 'error' ? 'bg-red-500' : 'bg-yellow-500'"></span>
+                                <span class="text-sm capitalize" x-text="status"></span>
+                            </div>
+                            <span class="text-sm font-mono text-gray-300" x-text="count"></span>
+                        </div>
+                    </template>
+                    <p x-show="Object.keys(metrics.traces_by_status).length === 0" class="text-sm text-gray-600">No data yet</p>
+                </div>
+                <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
+                    <h3 class="text-sm font-medium text-gray-400 mb-4">Cost by Model</h3>
+                    <template x-for="(cost, model) in metrics.cost_by_model" :key="model">
+                        <div class="flex items-center justify-between py-2 border-b border-gray-800 last:border-0">
+                            <span class="text-sm font-mono" x-text="model"></span>
+                            <span class="text-sm font-mono text-green-400" x-text="'$' + cost.toFixed(6)"></span>
+                        </div>
+                    </template>
+                    <p x-show="Object.keys(metrics.cost_by_model).length === 0" class="text-sm text-gray-600">No data yet</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ TRACES LIST VIEW ═══ -->
+        <div x-show="currentView === 'traces'" x-cloak>
+            <div class="flex items-center justify-between mb-5">
+                <h2 class="text-xl font-semibold">Traces</h2>
+                <div class="flex items-center gap-3">
+                    <select x-model="filterStatus" @change="loadTraces()"
+                            class="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-gray-300">
+                        <option value="">All Status</option>
+                        <option value="completed">Completed</option>
+                        <option value="running">Running</option>
+                        <option value="error">Error</option>
+                    </select>
+                    <button @click="loadTraces()" class="bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg text-sm transition">
+                        Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Traces Table -->
+            <div class="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-gray-800 text-gray-500 text-xs uppercase tracking-wide">
+                            <th class="text-left px-4 py-3">Workflow</th>
+                            <th class="text-left px-4 py-3">Status</th>
+                            <th class="text-right px-4 py-3">Spans</th>
+                            <th class="text-right px-4 py-3">Tokens</th>
+                            <th class="text-right px-4 py-3">Cost</th>
+                            <th class="text-right px-4 py-3">Duration</th>
+                            <th class="text-right px-4 py-3">Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template x-for="trace in traces" :key="trace.trace_id">
+                            <tr @click="viewTrace(trace.trace_id)"
+                                class="border-b border-gray-800/50 hover:bg-gray-800/50 cursor-pointer transition">
+                                <td class="px-4 py-3">
+                                    <span class="font-medium text-gray-200" x-text="trace.workflow_name || 'Untitled'"></span>
+                                    <span class="text-xs text-gray-600 ml-2 font-mono" x-text="trace.trace_id.substring(0, 12) + '...'"></span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span class="inline-flex items-center gap-1.5 text-xs font-medium px-2 py-0.5 rounded-full"
+                                          :class="trace.status === 'completed' ? 'bg-green-500/10 text-green-400' :
+                                                  trace.status === 'error' ? 'bg-red-500/10 text-red-400' :
+                                                  'bg-yellow-500/10 text-yellow-400'">
+                                        <span class="w-1.5 h-1.5 rounded-full"
+                                              :class="trace.status === 'completed' ? 'bg-green-500' :
+                                                      trace.status === 'error' ? 'bg-red-500' : 'bg-yellow-500'"></span>
+                                        <span x-text="trace.status"></span>
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 text-right text-gray-400 font-mono" x-text="trace.span_count"></td>
+                                <td class="px-4 py-3 text-right text-gray-400 font-mono" x-text="formatNumber(trace.total_tokens)"></td>
+                                <td class="px-4 py-3 text-right text-green-400 font-mono" x-text="'$' + trace.total_cost.toFixed(4)"></td>
+                                <td class="px-4 py-3 text-right text-gray-400 font-mono" x-text="formatDuration(trace.duration_ms)"></td>
+                                <td class="px-4 py-3 text-right text-gray-500 text-xs" x-text="formatTime(trace.started_at)"></td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+                <div x-show="traces.length === 0" class="px-6 py-12 text-center text-gray-600">
+                    <p class="text-lg mb-2">No traces yet</p>
+                    <p class="text-sm">Run an agent with <code class="bg-gray-800 px-1.5 py-0.5 rounded text-xs">traceboard.init()</code> to start capturing traces.</p>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div x-show="totalTraces > pageSize" class="flex items-center justify-between mt-4">
+                <p class="text-sm text-gray-500">
+                    Showing <span x-text="(currentPage - 1) * pageSize + 1"></span>-<span x-text="Math.min(currentPage * pageSize, totalTraces)"></span>
+                    of <span x-text="totalTraces"></span>
+                </p>
+                <div class="flex gap-2">
+                    <button @click="currentPage--; loadTraces()" :disabled="currentPage <= 1"
+                            class="px-3 py-1 bg-gray-800 rounded text-sm disabled:opacity-30 hover:bg-gray-700 transition">Prev</button>
+                    <button @click="currentPage++; loadTraces()" :disabled="currentPage * pageSize >= totalTraces"
+                            class="px-3 py-1 bg-gray-800 rounded text-sm disabled:opacity-30 hover:bg-gray-700 transition">Next</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ TRACE DETAIL VIEW ═══ -->
+        <div x-show="currentView === 'detail'" x-cloak>
+            <!-- Breadcrumb -->
+            <div class="flex items-center gap-2 mb-5 text-sm">
+                <button @click="currentView = 'traces'; loadTraces()" class="text-gray-500 hover:text-gray-300 transition">Traces</button>
+                <span class="text-gray-700">/</span>
+                <span class="text-gray-300 font-mono" x-text="selectedTrace?.trace?.workflow_name || 'Detail'"></span>
+            </div>
+
+            <template x-if="selectedTrace">
+                <div>
+                    <!-- Trace Header -->
+                    <div class="bg-gray-900 rounded-xl border border-gray-800 p-5 mb-6">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <h2 class="text-lg font-semibold" x-text="selectedTrace.trace.workflow_name || 'Agent Workflow'"></h2>
+                                <p class="text-xs text-gray-500 font-mono mt-1" x-text="selectedTrace.trace.trace_id"></p>
+                            </div>
+                            <span class="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full"
+                                  :class="selectedTrace.trace.status === 'completed' ? 'bg-green-500/10 text-green-400' :
+                                          selectedTrace.trace.status === 'error' ? 'bg-red-500/10 text-red-400' :
+                                          'bg-yellow-500/10 text-yellow-400'">
+                                <span class="w-1.5 h-1.5 rounded-full"
+                                      :class="selectedTrace.trace.status === 'completed' ? 'bg-green-500' :
+                                              selectedTrace.trace.status === 'error' ? 'bg-red-500' : 'bg-yellow-500'"></span>
+                                <span x-text="selectedTrace.trace.status"></span>
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-4 gap-4 mt-4">
+                            <div>
+                                <p class="text-xs text-gray-500">Duration</p>
+                                <p class="text-sm font-mono mt-0.5" x-text="selectedTrace.trace.ended_at ? formatDuration((selectedTrace.trace.ended_at - selectedTrace.trace.started_at) * 1000) : 'Running...'"></p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500">Tokens</p>
+                                <p class="text-sm font-mono mt-0.5" x-text="formatNumber(selectedTrace.trace.total_tokens)"></p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500">Cost</p>
+                                <p class="text-sm font-mono text-green-400 mt-0.5" x-text="'$' + selectedTrace.trace.total_cost.toFixed(6)"></p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500">Spans</p>
+                                <p class="text-sm font-mono mt-0.5" x-text="selectedTrace.spans.length"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Timeline + Detail Split -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Timeline (left 2/3) -->
+                        <div class="lg:col-span-2">
+                            <h3 class="text-sm font-medium text-gray-400 mb-3">Execution Timeline</h3>
+                            <div class="bg-gray-900 rounded-xl border border-gray-800 p-4 overflow-x-auto">
+                                <template x-if="selectedTrace.spans.length > 0">
+                                    <div class="min-w-[600px]">
+                                        <template x-for="span in selectedTrace.spans" :key="span.span_id">
+                                            <div @click="selectedSpan = span"
+                                                 class="flex items-center gap-3 py-1.5 cursor-pointer hover:bg-gray-800/50 rounded px-2 transition"
+                                                 :class="selectedSpan?.span_id === span.span_id ? 'bg-gray-800' : ''">
+                                                <!-- Indent based on depth -->
+                                                <div :style="'padding-left:' + getSpanDepth(span) * 16 + 'px'" class="flex items-center gap-2 min-w-[200px]">
+                                                    <span class="w-2 h-2 rounded-full flex-shrink-0"
+                                                          :class="spanColor(span.span_type)"></span>
+                                                    <span class="text-xs font-medium truncate" x-text="span.name || span.span_type"></span>
+                                                    <span class="text-[10px] text-gray-600 font-mono" x-text="span.span_type"></span>
+                                                </div>
+                                                <!-- Timeline bar -->
+                                                <div class="flex-1 h-6 relative">
+                                                    <div class="absolute inset-0 bg-gray-800/30 rounded"></div>
+                                                    <div class="absolute top-0 h-full rounded opacity-80"
+                                                         :class="spanBarColor(span.span_type)"
+                                                         :style="getTimelineBarStyle(span)">
+                                                    </div>
+                                                </div>
+                                                <!-- Duration -->
+                                                <span class="text-[10px] text-gray-500 font-mono w-16 text-right flex-shrink-0"
+                                                      x-text="span.ended_at ? formatDuration((span.ended_at - span.started_at) * 1000) : '...'"></span>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </template>
+                                <p x-show="selectedTrace.spans.length === 0" class="text-sm text-gray-600 text-center py-6">No spans recorded</p>
+                            </div>
+                        </div>
+
+                        <!-- Span Detail (right 1/3) -->
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-400 mb-3">Span Detail</h3>
+                            <div class="bg-gray-900 rounded-xl border border-gray-800 p-4 sticky top-20">
+                                <template x-if="selectedSpan">
+                                    <div>
+                                        <div class="flex items-center gap-2 mb-4">
+                                            <span class="w-2.5 h-2.5 rounded-full" :class="spanColor(selectedSpan.span_type)"></span>
+                                            <span class="font-medium text-sm" x-text="selectedSpan.name || selectedSpan.span_type"></span>
+                                        </div>
+
+                                        <!-- Span Info -->
+                                        <div class="space-y-3 text-xs">
+                                            <div>
+                                                <span class="text-gray-500">Type:</span>
+                                                <span class="ml-2 font-mono" x-text="selectedSpan.span_type"></span>
+                                            </div>
+                                            <div>
+                                                <span class="text-gray-500">ID:</span>
+                                                <span class="ml-2 font-mono text-gray-400" x-text="selectedSpan.span_id"></span>
+                                            </div>
+                                            <div>
+                                                <span class="text-gray-500">Duration:</span>
+                                                <span class="ml-2 font-mono" x-text="selectedSpan.ended_at ? formatDuration((selectedSpan.ended_at - selectedSpan.started_at) * 1000) : 'Running...'"></span>
+                                            </div>
+                                            <div x-show="selectedSpan.cost > 0">
+                                                <span class="text-gray-500">Cost:</span>
+                                                <span class="ml-2 font-mono text-green-400" x-text="'$' + selectedSpan.cost.toFixed(6)"></span>
+                                            </div>
+
+                                            <!-- Model info for generation spans -->
+                                            <template x-if="selectedSpan.span_data?.model">
+                                                <div>
+                                                    <span class="text-gray-500">Model:</span>
+                                                    <span class="ml-2 font-mono text-brand-400" x-text="selectedSpan.span_data.model"></span>
+                                                </div>
+                                            </template>
+
+                                            <!-- Token usage -->
+                                            <template x-if="selectedSpan.span_data?.input_tokens || selectedSpan.span_data?.output_tokens">
+                                                <div>
+                                                    <span class="text-gray-500">Tokens:</span>
+                                                    <span class="ml-2 font-mono">
+                                                        <span x-text="selectedSpan.span_data.input_tokens || 0"></span> in /
+                                                        <span x-text="selectedSpan.span_data.output_tokens || 0"></span> out
+                                                    </span>
+                                                </div>
+                                            </template>
+
+                                            <!-- Error -->
+                                            <template x-if="selectedSpan.error">
+                                                <div class="bg-red-500/10 border border-red-500/20 rounded-lg p-3 mt-2">
+                                                    <p class="text-red-400 font-medium text-xs mb-1">Error</p>
+                                                    <pre class="text-red-300 text-[10px] font-mono whitespace-pre-wrap" x-text="JSON.stringify(selectedSpan.error, null, 2)"></pre>
+                                                </div>
+                                            </template>
+                                        </div>
+
+                                        <!-- Span Data (collapsible) -->
+                                        <div class="mt-4" x-data="{showData: false}">
+                                            <button @click="showData = !showData"
+                                                    class="text-xs text-gray-500 hover:text-gray-300 transition flex items-center gap-1">
+                                                <span x-text="showData ? 'Hide' : 'Show'"></span> Raw Data
+                                                <svg class="w-3 h-3 transition-transform" :class="showData ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                                </svg>
+                                            </button>
+                                            <div x-show="showData" x-cloak class="mt-2">
+                                                <pre class="bg-gray-950 rounded-lg p-3 text-[10px] font-mono text-gray-400 overflow-auto max-h-96 whitespace-pre-wrap"
+                                                     x-text="JSON.stringify(selectedSpan.span_data, null, 2)"></pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                                <p x-show="!selectedSpan" class="text-sm text-gray-600 text-center py-6">Click a span to view details</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+    </main>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
