@@ -121,7 +121,7 @@ TraceBoard supports cost tracking for **6 providers, 100+ model variants**:
 | Provider | Models |
 |---|---|
 | **OpenAI** | `gpt-5.2`, `gpt-5.1`, `gpt-5`, `gpt-5-mini`, `gpt-5-nano`, `gpt-4.1`, `gpt-4o`, `o1`, `o3`, `o4-mini`, and more |
-| **Anthropic** | `claude-opus-4.5`, `claude-sonnet-4.5`, `claude-haiku-4.5`, `claude-opus-4`, `claude-sonnet-4`, `claude-3.5-sonnet`, `claude-3-opus` |
+| **Anthropic** | `claude-opus-4.6`, `claude-opus-4.5`, `claude-sonnet-4.5`, `claude-haiku-4.5`, `claude-opus-4`, `claude-sonnet-4`, `claude-3.5-sonnet` |
 | **Google** | `gemini-3-pro-preview`, `gemini-3-flash-preview`, `gemini-2.5-pro`, `gemini-2.5-flash`, `gemini-2.0-flash` |
 | **DeepSeek** | `deepseek-chat`, `deepseek-reasoner` |
 | **Meta** | `llama-4-maverick`, `llama-4-scout`, `llama-3.3-70b`, `llama-3.1-405b` |

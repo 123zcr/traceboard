@@ -106,8 +106,12 @@ MODEL_PRICES: dict[str, tuple[float, float]] = {
     "gpt-3.5-turbo-16k-0613": (3.00, 4.00),
 
     # ═══════════════════════════════════════════════════════════════════
-    # Anthropic Claude
+    # Anthropic Claude  (source: docs.anthropic.com/en/docs/about-claude/pricing)
     # ═══════════════════════════════════════════════════════════════════
+
+    # ── Claude Opus 4.6 (Feb 2026) ────────────────────────────────────
+    "claude-opus-4-6-20260205": (5.00, 25.00),
+    "claude-opus-4.6": (5.00, 25.00),
 
     # ── Claude 4.5 ─────────────────────────────────────────────────────
     "claude-opus-4-5-20250514": (5.00, 25.00),
@@ -117,11 +121,19 @@ MODEL_PRICES: dict[str, tuple[float, float]] = {
     "claude-haiku-4-5-20250514": (1.00, 5.00),
     "claude-haiku-4.5": (1.00, 5.00),
 
+    # ── Claude 4.1 ─────────────────────────────────────────────────────
+    "claude-opus-4-1": (15.00, 75.00),
+    "claude-opus-4.1": (15.00, 75.00),
+
     # ── Claude 4 ───────────────────────────────────────────────────────
     "claude-opus-4-20250514": (15.00, 75.00),
     "claude-opus-4": (15.00, 75.00),
     "claude-sonnet-4-20250514": (3.00, 15.00),
     "claude-sonnet-4": (3.00, 15.00),
+
+    # ── Claude 3.7 (deprecated) ───────────────────────────────────────
+    "claude-sonnet-3.7": (3.00, 15.00),
+    "claude-3-7-sonnet": (3.00, 15.00),
 
     # ── Claude 3.5 ─────────────────────────────────────────────────────
     "claude-3-5-sonnet-20241022": (3.00, 15.00),
@@ -139,7 +151,7 @@ MODEL_PRICES: dict[str, tuple[float, float]] = {
     "claude-3-haiku": (0.25, 1.25),
 
     # ═══════════════════════════════════════════════════════════════════
-    # Google Gemini
+    # Google Gemini  (source: ai.google.dev/gemini-api/docs/pricing)
     # ═══════════════════════════════════════════════════════════════════
 
     # ── Gemini 3 (Preview) ─────────────────────────────────────────────
@@ -165,27 +177,41 @@ MODEL_PRICES: dict[str, tuple[float, float]] = {
     "gemini-1.5-flash-8b": (0.0375, 0.15),
 
     # ═══════════════════════════════════════════════════════════════════
-    # DeepSeek
+    # DeepSeek  (source: api-docs.deepseek.com — V3.2 pricing)
     # ═══════════════════════════════════════════════════════════════════
-    "deepseek-chat": (0.30, 1.20),
-    "deepseek-reasoner": (0.55, 2.19),
+    "deepseek-chat": (0.28, 0.42),
+    "deepseek-reasoner": (0.28, 0.42),
 
     # ═══════════════════════════════════════════════════════════════════
-    # Meta Llama (via hosted APIs)
+    # Meta Llama  (source: pricepertoken.com — hosted API pricing)
     # ═══════════════════════════════════════════════════════════════════
-    "llama-4-maverick": (0.20, 0.60),
-    "llama-4-scout": (0.15, 0.40),
-    "llama-3.3-70b": (0.20, 0.20),
+    "llama-4-maverick": (0.15, 0.60),
+    "llama-4-scout": (0.08, 0.30),
+    "llama-3.3-70b": (0.10, 0.32),
+    "llama-3.3-70b-instruct": (0.10, 0.32),
+    "llama-guard-4-12b": (0.18, 0.18),
     "llama-3.1-405b": (1.00, 1.00),
+    "llama-3.1-405b-instruct": (1.00, 1.00),
     "llama-3.1-70b": (0.20, 0.20),
+    "llama-3.1-70b-instruct": (0.20, 0.20),
     "llama-3.1-8b": (0.05, 0.05),
+    "llama-3.1-8b-instruct": (0.05, 0.05),
 
     # ═══════════════════════════════════════════════════════════════════
-    # Mistral
+    # Mistral  (source: mistral.ai/pricing — Feb 2026)
     # ═══════════════════════════════════════════════════════════════════
     "mistral-large-latest": (2.00, 6.00),
-    "mistral-medium-latest": (0.40, 2.00),
-    "mistral-small-latest": (0.10, 0.30),
+    "mistral-large-3": (2.00, 6.00),
+    "mistral-medium-latest": (1.00, 3.00),
+    "mistral-medium-3": (1.00, 3.00),
+    "mistral-small-latest": (0.20, 0.60),
+    "mistral-small-3": (0.20, 0.60),
+    "mistral-small-creative": (0.20, 0.60),
+    "devstral-2": (0.50, 1.50),
+    "devstral-2-2512": (0.50, 1.50),
+    "ministral-14b-latest": (0.15, 0.15),
+    "ministral-8b-latest": (0.10, 0.10),
+    "mistral-nemo": (0.02, 0.04),
     "codestral-latest": (0.30, 0.90),
     "mistral-embed": (0.10, 0.10),
 }
